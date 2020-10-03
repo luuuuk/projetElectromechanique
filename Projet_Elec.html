@@ -1,0 +1,538 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Projet_Elec</title><meta name="generator" content="MATLAB 9.7"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2020-01-28"><meta name="DC.source" content="Projet_Elec.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">3.2.1 Filtrage profil de production PV</a></li><li><a href="#2">3.2.2 Potentiel d'hybridation en puissance</a></li><li><a href="#3">3.2.3 Puissance fournie</a></li><li><a href="#4">3.2.4 Energie &agrave; stocker</a></li><li><a href="#5">3.3 Energie cin&eacute;tique</a></li><li><a href="#6">3.4 Mod&eacute;lisation et commande vectorielle du moteur</a></li><li><a href="#7">3.5 Contr&ocirc;le-commande du moteur</a></li><li><a href="#8">3.5.1 D&eacute;finition des sp&eacute;cifications</a></li><li><a href="#9">3.5.2 Correcteurs</a></li></ul></div><h2 id="1">3.2.1 Filtrage profil de production PV</h2><pre class="codeinput">close <span class="string">all</span>;
+<span class="comment">%load data</span>
+load(<span class="string">"Centrale250kW_16_sept.mat"</span>) ;
+Ppv = Grandeur_lapalud_16sept( :,4) ;
+
+<span class="comment">%filtre</span>
+Fe = 0.0069 ;  <span class="comment">% fr&eacute;quence d'&eacute;chantillonnage</span>
+M = 477 ;
+B=fir1(M,2*Fe,<span class="string">"low"</span>,hamming(M+1)) ;
+PV_filtre=filtfilt(B,1,Ppv);
+
+t=(1:1:1440);
+
+<span class="comment">%plot</span>
+figure();
+plot(t,Ppv);
+title(<span class="string">"Puissance sur une journ&eacute;e"</span>);
+xlabel(<span class="string">"Temps (min)"</span>);
+ylabel(<span class="string">"Puissance (kW)"</span>);
+grid <span class="string">on</span>;
+
+figure(<span class="string">"Name"</span>,<span class="string">"Analyse photovoltaique"</span>);
+subplot(2,1,1);
+plot(t,Ppv,t,PV_filtre);
+title(<span class="string">"Puissance filtr&eacute;e"</span>);
+xlabel(<span class="string">"Temps (min)"</span>);
+ylabel(<span class="string">"Puissance (kW)"</span>);
+grid <span class="string">on</span>;
+legend(<span class="string">"Puissance PV"</span>,<span class="string">"Puissance filtr&eacute;e"</span>)
+subplot(2,1,2);
+plot(t,Ppv-PV_filtre);
+title(<span class="string">"Difference entre puissance filtr&eacute;e et non-filtr&eacute;e"</span>);
+xlabel(<span class="string">"Temps (min)"</span>);
+ylabel(<span class="string">"Puissance (kW)"</span>);
+grid <span class="string">on</span>;
+</pre><img vspace="5" hspace="5" src="Projet_Elec_01.png" alt=""> <img vspace="5" hspace="5" src="Projet_Elec_02.png" alt=""> <h2 id="2">3.2.2 Potentiel d'hybridation en puissance</h2><pre class="codeinput"><span class="comment">%Calcul PHP</span>
+Pmoy = mean(Ppv);
+Pmax = max(Ppv);
+PHP = 1 - (Pmoy/Pmax);
+
+<span class="comment">%ecart type, dist norm (indicateur)</span>
+ecart_type = std(Ppv);
+yEc = normpdf(t,Pmoy,ecart_type);
+<span class="comment">%subplot(3,1,3);</span>
+<span class="comment">%plot(t,yEc);</span>
+
+<span class="comment">%puissance moyenne sur la journ&eacute;e</span>
+tDay = t(round(0.25*1440):round(0.75*1440));
+ppvDay = Ppv(round(0.25*1440):round(0.75*1440));
+PmoyDay = mean(ppvDay)
+PmaxDay = max(ppvDay);
+PHP_day = 1 - (PmoyDay/PmaxDay)
+</pre><pre class="codeoutput">
+PmoyDay =
+
+   1.0013e+05
+
+
+PHP_day =
+
+    0.5208
+
+</pre><h2 id="3">3.2.3 Puissance fournie</h2><pre class="codeinput"><span class="comment">%Puissance &agrave; fournir</span>
+Psse = PV_filtre-Ppv;
+Pvi = zeros(1440,1);
+<span class="keyword">for</span> i=1:1:1440
+    <span class="keyword">if</span>  Psse(i) &lt;= 0
+        Pvi(i) = 0.95*Psse(i);
+    <span class="keyword">end</span>
+    <span class="keyword">if</span> Psse(i) &gt; 0
+        Pvi(i) = Psse(i)/0.95;
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+figure();
+plot(t,Pvi);
+title(<span class="string">"Puissance &agrave; fournir"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Puissance"</span>);
+</pre><img vspace="5" hspace="5" src="Projet_Elec_03.png" alt=""> <h2 id="4">3.2.4 Energie &agrave; stocker</h2><pre class="codeinput"><span class="comment">%Energie stock&eacute;e dans le volant</span>
+    <span class="comment">% Evi= zeros(1440,1);</span>
+    <span class="comment">% for i=1:1:1440</span>
+    <span class="comment">%     Evi(i) = -trapz(Pvi(1:i));</span>
+    <span class="comment">% end</span>
+Evi = -cumtrapz(Pvi);
+<span class="comment">%en utilisant l'&eacute;nergie utile</span>
+Eutil = max(Evi) - min(Evi); <span class="comment">%Watt*min</span>
+Evi = Evi - min(Evi)+0.3*(Eutil/0.7); <span class="comment">%Watt*min</span>
+<span class="comment">%plot</span>
+figure();
+plot(t,Evi);
+title(<span class="string">"Energie &agrave; stocker"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Energie"</span>);
+</pre><img vspace="5" hspace="5" src="Projet_Elec_04.png" alt=""> <h2 id="5">3.3 Energie cin&eacute;tique</h2><pre class="codeinput">DoDmax = 0.7;
+OmegaMin = 2760; <span class="comment">%tour/min</span>
+Capacity = Eutil/DoDmax;
+Emin=0.3*Capacity;
+OmegaMax = OmegaMin/sqrt(0.3); <span class="comment">%tour/min</span>
+
+OmegaMaxconvertie=OmegaMax*2*pi/60; <span class="comment">%rad/s</span>
+OmegaMinconvertie=OmegaMin*2*pi/60; <span class="comment">%rad/s</span>
+Eutilconvertie = Eutil*60; <span class="comment">%Joule</span>
+
+ResElas = 1800*10^6; <span class="comment">%Pa</span>
+MasseVol = 7800; <span class="comment">% kg/m^3</span>
+
+Jrad = 2*Eutilconvertie/(OmegaMaxconvertie*OmegaMaxconvertie-OmegaMinconvertie*OmegaMinconvertie)
+J = 2*Eutilconvertie/(OmegaMax*OmegaMax-OmegaMin*OmegaMin);
+<span class="comment">%rayon du volant</span>
+R=1.5;
+<span class="comment">%Masse du volant</span>
+Masse = 2*J/(R^2)
+<span class="comment">%longeur</span>
+L=Masse/(MasseVol*pi*R^2)
+
+<span class="comment">%R1 = sqrt(ResElas/(MasseVol*OmegaMaxconvertie));</span>
+GammaMax=[];
+Pmax=[];
+<span class="keyword">for</span> i=1:1:13001*(2*pi/60)
+    GammaMax(i)=240;
+    Pmax(i)= 70000;
+<span class="keyword">end</span>
+Omega1=(1:1:13001*(2*pi/60));
+Omega2=(1:1:13001*(2*pi/60));
+Gamma = Pmax(1:13001*(2*pi/60)) ./ Omega2;
+figure;
+plot(Omega1(1:292),GammaMax(1:292),Omega2(292:1331),Gamma(292:1331),Omega1(1:292),-GammaMax(1:292),Omega2(292:1331),-Gamma(292:1331));
+title(<span class="string">"Points de fonctionnement"</span>);
+xlabel(<span class="string">"Vitesse"</span>);
+ylabel(<span class="string">"Couple"</span>);
+hold <span class="string">on</span>
+<span class="comment">%Calcul des points de fonctionnement</span>
+
+OmegaInstantane = sqrt(2*Evi*60/Jrad);
+GammaUtilPtf = Pvi./OmegaInstantane;
+plot(OmegaInstantane,GammaUtilPtf,<span class="string">"+"</span>);
+</pre><pre class="codeoutput">
+Jrad =
+
+  615.1715
+
+
+Masse =
+
+    5.9965
+
+
+L =
+
+   1.0876e-04
+
+Warning: Integer operands are required for colon operator when used as index. 
+</pre><img vspace="5" hspace="5" src="Projet_Elec_05.png" alt=""> <h2 id="6">3.4 Mod&eacute;lisation et commande vectorielle du moteur</h2><pre class="codeinput"><span class="comment">% Evolution de la vitesse du moteur</span>
+figure;
+plot((1:1440),OmegaInstantane);
+title(<span class="string">"Evolution de la vitesse du moteur"</span>);
+xlabel(<span class="string">"Temps (min)"</span>);
+ylabel(<span class="string">"Vitesse (rad/s)"</span>);
+
+<span class="comment">% Evolution du couple moteur</span>
+figure;
+plot((1:1440),GammaUtilPtf);
+title(<span class="string">"Evolution du couple moteur ramen&eacute; sur l'arbre moteur"</span>);
+xlabel(<span class="string">"Temps (min)"</span>);
+ylabel(<span class="string">"Couple (N.m)"</span>);
+
+<span class="comment">% Caract&eacute;ristiques m&eacute;chaniques du moteur</span>
+p=4;
+Rs=0.0952; <span class="comment">%Ohm</span>
+Phifsd=1.17; <span class="comment">%rad/s</span>
+Ld=2.59*0.001; <span class="comment">%H</span>
+Lq=2.62*0.001; <span class="comment">%H</span>
+
+<span class="comment">% calcul vitesse du moteur</span>
+OmegaInstantane = sqrt(2*Evi*60/Jrad);
+
+<span class="comment">% calcul courant statorique</span>
+isd = zeros(1440,1);
+isq = GammaUtilPtf/(p*Phifsd);
+Is_eff = abs(isq/sqrt(3));
+Is = [ isd isq ];
+<span class="comment">% calcul pulsation</span>
+omega_r=zeros(1,1440);
+
+<span class="comment">% calcul pulsation statorique</span>
+omega_s = p*OmegaInstantane;
+
+<span class="comment">% tension simple statorique</span>
+Vsd =omega_s.*isq*Ld;
+Vsq = Rs*isq +omega_s*Phifsd;
+Vs = [Vsd Vsq];
+
+figure(<span class="string">"Name"</span>,<span class="string">"V&eacute;rification du moteur"</span>);
+subplot(4,1,1);
+plot(t,OmegaInstantane);
+title(<span class="string">"Vitesse du moteur"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Vitesse"</span>);
+
+subplot(4,1,2);
+plot(t,Vsd,t,Vsq);
+title(<span class="string">"Tension Vsd et Vsq"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Tension"</span>);
+
+subplot(4,1,3);
+plot(t,Is_eff);
+title(<span class="string">"Courant effectif"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Courant"</span>);
+
+subplot(4,1,4);
+plot(t,omega_s);
+title(<span class="string">"Pulsation statorique"</span>);
+xlabel(<span class="string">"Temps"</span>);
+ylabel(<span class="string">"Pulsation"</span>);
+</pre><img vspace="5" hspace="5" src="Projet_Elec_06.png" alt=""> <img vspace="5" hspace="5" src="Projet_Elec_07.png" alt=""> <img vspace="5" hspace="5" src="Projet_Elec_08.png" alt=""> <h2 id="7">3.5 Contr&ocirc;le-commande du moteur</h2><h2 id="8">3.5.1 D&eacute;finition des sp&eacute;cifications</h2><pre class="codeinput">ksi = 1.0;
+<span class="comment">% Temps te r&eacute;ponse entre trmax et trmin</span>
+tr_max = 3*Ld/Rs;
+Tmli = 1/10000;
+tr_min = 15*Tmli;
+tr = (tr_max-tr_min)/2;
+omega_n = 3/tr;
+</pre><h2 id="9">3.5.2 Correcteurs</h2><pre class="codeinput"><span class="comment">% boucle int&eacute;rieure</span>
+<span class="comment">% Calcul des gains</span>
+kid = Ld*omega_n*omega_n;
+kpd = (2*ksi*kid)/omega_n - Rs;
+
+kiq = Lq*omega_n*omega_n;
+kpq = (2*ksi*kiq)/omega_n - Rs;
+
+omega_fonct = p*OmegaMaxconvertie;
+
+<span class="comment">% boucle exterieure</span>
+ki = J;
+kp = 1;
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2019b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% 3.2.1 Filtrage profil de production PV
+close all;
+%load data
+load("Centrale250kW_16_sept.mat") ;
+Ppv = Grandeur_lapalud_16sept( :,4) ;
+
+%filtre
+Fe = 0.0069 ;  % fréquence d'échantillonnage
+M = 477 ;
+B=fir1(M,2*Fe,"low",hamming(M+1)) ;
+PV_filtre=filtfilt(B,1,Ppv);
+
+t=(1:1:1440);
+
+%plot
+figure();
+plot(t,Ppv);
+title("Puissance sur une journée");
+xlabel("Temps (min)");
+ylabel("Puissance (kW)");
+grid on;
+
+figure("Name","Analyse photovoltaique");
+subplot(2,1,1);
+plot(t,Ppv,t,PV_filtre);
+title("Puissance filtrée");
+xlabel("Temps (min)");
+ylabel("Puissance (kW)");
+grid on;
+legend("Puissance PV","Puissance filtrée")
+subplot(2,1,2);
+plot(t,Ppv-PV_filtre);
+title("Difference entre puissance filtrée et non-filtrée");
+xlabel("Temps (min)");
+ylabel("Puissance (kW)");
+grid on;
+
+%% 3.2.2 Potentiel d'hybridation en puissance
+%Calcul PHP
+Pmoy = mean(Ppv);
+Pmax = max(Ppv);
+PHP = 1 - (Pmoy/Pmax);
+
+%ecart type, dist norm (indicateur)
+ecart_type = std(Ppv);
+yEc = normpdf(t,Pmoy,ecart_type);
+%subplot(3,1,3);
+%plot(t,yEc);
+
+%puissance moyenne sur la journée
+tDay = t(round(0.25*1440):round(0.75*1440));
+ppvDay = Ppv(round(0.25*1440):round(0.75*1440));
+PmoyDay = mean(ppvDay)
+PmaxDay = max(ppvDay);
+PHP_day = 1 - (PmoyDay/PmaxDay)
+
+%% 3.2.3 Puissance fournie
+%Puissance à fournir
+Psse = PV_filtre-Ppv;
+Pvi = zeros(1440,1);
+for i=1:1:1440
+    if  Psse(i) <= 0
+        Pvi(i) = 0.95*Psse(i);
+    end
+    if Psse(i) > 0
+        Pvi(i) = Psse(i)/0.95;
+    end
+end
+figure();
+plot(t,Pvi);
+title("Puissance à fournir");
+xlabel("Temps");
+ylabel("Puissance");
+
+%% 3.2.4 Energie à stocker
+%Energie stockée dans le volant 
+    % Evi= zeros(1440,1);
+    % for i=1:1:1440
+    %     Evi(i) = -trapz(Pvi(1:i));
+    % end
+Evi = -cumtrapz(Pvi);
+%en utilisant l'énergie utile 
+Eutil = max(Evi) - min(Evi); %Watt*min
+Evi = Evi - min(Evi)+0.3*(Eutil/0.7); %Watt*min
+%plot
+figure();
+plot(t,Evi);
+title("Energie à stocker");
+xlabel("Temps");
+ylabel("Energie");
+
+%% 3.3 Energie cinétique
+DoDmax = 0.7;
+OmegaMin = 2760; %tour/min
+Capacity = Eutil/DoDmax;
+Emin=0.3*Capacity;
+OmegaMax = OmegaMin/sqrt(0.3); %tour/min
+
+OmegaMaxconvertie=OmegaMax*2*pi/60; %rad/s
+OmegaMinconvertie=OmegaMin*2*pi/60; %rad/s
+Eutilconvertie = Eutil*60; %Joule
+
+ResElas = 1800*10^6; %Pa
+MasseVol = 7800; % kg/m^3
+
+Jrad = 2*Eutilconvertie/(OmegaMaxconvertie*OmegaMaxconvertie-OmegaMinconvertie*OmegaMinconvertie)
+J = 2*Eutilconvertie/(OmegaMax*OmegaMax-OmegaMin*OmegaMin);
+%rayon du volant
+R=1.5;
+%Masse du volant 
+Masse = 2*J/(R^2)
+%longeur
+L=Masse/(MasseVol*pi*R^2)
+
+%R1 = sqrt(ResElas/(MasseVol*OmegaMaxconvertie));
+GammaMax=[];
+Pmax=[];
+for i=1:1:13001*(2*pi/60)
+    GammaMax(i)=240;
+    Pmax(i)= 70000;
+end
+Omega1=(1:1:13001*(2*pi/60));
+Omega2=(1:1:13001*(2*pi/60));
+Gamma = Pmax(1:13001*(2*pi/60)) ./ Omega2;
+figure;
+plot(Omega1(1:292),GammaMax(1:292),Omega2(292:1331),Gamma(292:1331),Omega1(1:292),-GammaMax(1:292),Omega2(292:1331),-Gamma(292:1331));
+title("Points de fonctionnement");
+xlabel("Vitesse");
+ylabel("Couple");
+hold on
+%Calcul des points de fonctionnement
+
+OmegaInstantane = sqrt(2*Evi*60/Jrad);
+GammaUtilPtf = Pvi./OmegaInstantane;
+plot(OmegaInstantane,GammaUtilPtf,"+");
+
+%% 3.4 Modélisation et commande vectorielle du moteur
+
+% Evolution de la vitesse du moteur
+figure;
+plot((1:1440),OmegaInstantane);
+title("Evolution de la vitesse du moteur");
+xlabel("Temps (min)");
+ylabel("Vitesse (rad/s)");
+
+% Evolution du couple moteur
+figure;
+plot((1:1440),GammaUtilPtf);
+title("Evolution du couple moteur ramené sur l'arbre moteur");
+xlabel("Temps (min)");
+ylabel("Couple (N.m)");
+
+% Caractéristiques méchaniques du moteur
+p=4; 
+Rs=0.0952; %Ohm 
+Phifsd=1.17; %rad/s 
+Ld=2.59*0.001; %H
+Lq=2.62*0.001; %H
+
+% calcul vitesse du moteur
+OmegaInstantane = sqrt(2*Evi*60/Jrad);
+
+% calcul courant statorique 
+isd = zeros(1440,1);
+isq = GammaUtilPtf/(p*Phifsd);
+Is_eff = abs(isq/sqrt(3));
+Is = [ isd isq ];
+% calcul pulsation
+omega_r=zeros(1,1440);
+
+% calcul pulsation statorique 
+omega_s = p*OmegaInstantane;
+
+% tension simple statorique 
+Vsd =omega_s.*isq*Ld;
+Vsq = Rs*isq +omega_s*Phifsd;
+Vs = [Vsd Vsq];
+
+figure("Name","Vérification du moteur");
+subplot(4,1,1);
+plot(t,OmegaInstantane);
+title("Vitesse du moteur");
+xlabel("Temps");
+ylabel("Vitesse");
+
+subplot(4,1,2);
+plot(t,Vsd,t,Vsq);
+title("Tension Vsd et Vsq");
+xlabel("Temps");
+ylabel("Tension");
+
+subplot(4,1,3);
+plot(t,Is_eff);
+title("Courant effectif");
+xlabel("Temps");
+ylabel("Courant");
+
+subplot(4,1,4);
+plot(t,omega_s);
+title("Pulsation statorique");
+xlabel("Temps");
+ylabel("Pulsation");
+
+%% 3.5 Contrôle-commande du moteur
+%
+
+%% 3.5.1 Définition des spécifications
+ksi = 1.0;
+% Temps te réponse entre trmax et trmin
+tr_max = 3*Ld/Rs;
+Tmli = 1/10000;
+tr_min = 15*Tmli;
+tr = (tr_max-tr_min)/2;
+omega_n = 3/tr;
+
+%% 3.5.2 Correcteurs
+
+% boucle intérieure
+% Calcul des gains
+kid = Ld*omega_n*omega_n;
+kpd = (2*ksi*kid)/omega_n - Rs;
+
+kiq = Lq*omega_n*omega_n;
+kpq = (2*ksi*kiq)/omega_n - Rs;
+
+omega_fonct = p*OmegaMaxconvertie;
+
+% boucle exterieure
+ki = J;
+kp = 1;
+##### SOURCE END #####
+--></body></html>
